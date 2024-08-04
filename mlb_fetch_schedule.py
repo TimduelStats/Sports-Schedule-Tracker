@@ -7,7 +7,6 @@ from s3_uploader import upload_to_s3, delete_from_s3
 
 
 class MLBAPI:
-
     BASE_URL = 'https://statsapi.mlb.com/api/v1/'
     BUCKET_NAME = 'timjimmymlbdata'
     
@@ -159,7 +158,7 @@ class MLBAPI:
         return today_str, end_str
     
 
-def main():
+def main(event, lambda_context):
     try:
         # delete old schedule
         delete_from_s3(MLBAPI.BUCKET_NAME, "mlb_schedule.json")
@@ -172,4 +171,4 @@ def main():
         print(f"An error occurred: {str(e)}")
 
 if __name__ == "__main__":
-    main()
+    main(event=None, lambda_context=None)
