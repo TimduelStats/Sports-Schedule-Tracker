@@ -1,12 +1,8 @@
 import boto3
 import logging
 
-
 # Read the list of existing buckets
 def list_buckets():
-    """
-    List all the buckets in the account.
-    """
     try:
         s3 = boto3.client('s3')
         response = s3.list_buckets()
@@ -21,17 +17,6 @@ def list_buckets():
 
 # Upload a file to S3
 def upload_to_s3(file_path, bucket_name, object_name):
-    """
-    Upload a file to an S3 bucket.
-
-    Args:
-        file_path (str): The path to the file to upload.
-        bucket_name (str): The name of the bucket.
-        object_name (str): The name of the object in the bucket.
-
-    Returns:
-        bool: True if the file was uploaded successfully, otherwise False.
-    """
     try:
         s3 = boto3.client('s3')
         s3.upload_file(file_path, bucket_name, object_name)
@@ -42,16 +27,6 @@ def upload_to_s3(file_path, bucket_name, object_name):
 
 # Delete file from S3
 def delete_from_s3(bucket, key_name):
-    """
-    Delete a file from an S3 bucket.
-
-    Args:
-        bucket (str): The name of the bucket.
-        key_name (str): The name of the object in the bucket.
-
-    Returns:
-        bool: True if the file was deleted successfully, otherwise False.
-    """
     s3 = boto3.client('s3')
     try:
         s3.delete_object(Bucket=bucket, Key=key_name)
@@ -59,3 +34,4 @@ def delete_from_s3(bucket, key_name):
         logging.error(e)
         return False
     return True
+
