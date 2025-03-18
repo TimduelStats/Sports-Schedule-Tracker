@@ -6,6 +6,9 @@ from s3_uploader import upload_to_s3, delete_from_s3
 import mlbstatsapi
 import logging
 
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
 class MLBAPI:
     mlb = mlbstatsapi.Mlb()
 
@@ -18,7 +21,7 @@ class MLBAPI:
             current_date = self.get_current_est_date()
             schedule = self.mlb.get_schedule(current_date)
             if not schedule.dates or not current_date:
-                logging.error("No schedule found for today.")
+                logger.error("No schedule found for today.")
                 return []
             
             dates = schedule.dates
@@ -35,7 +38,7 @@ class MLBAPI:
                     game_info_list.append(game_info)
             return game_info_list
         except Exception as e:
-            logging.error(f"Error fetching schedule: {str(e)}")
+            logger.error(f"Error fetching schedule: {str(e)}")
             return []
 
     def save_schedule(self, data, filename="/tmp/mlb_schedule.json"):
@@ -43,7 +46,7 @@ class MLBAPI:
             with open(filename, "w") as f:
                 json.dump(data, f, indent=4)
         except Exception as e:
-            logging.error(f"Error saving schedule: {str(e)}")
+            logger.error(f"Error saving schedule: {str(e)}")
 
     def get_current_est_date(self):
         return datetime.now(self.est_tz).strftime('%Y-%m-%d')
@@ -62,25 +65,25 @@ def main(event, lambda_context):
     mlb_api = MLBAPI()  
     try:
         # delete old schedule
-        logging.info("Deleting old schedule from S3...")
+        logger.info("Deleting old schedule from S3...")
         delete_from_s3(BUCKET_NAME, SCHEDULE_FILENAME)
 
-        logging.info("Fetching new MLB schedule...")
+        logger.info("Fetching new MLB schedule...")
         schedule_data = mlb_api.get_schedule()
 
         if not schedule_data:
-            logging.warning("No schedule data found.")
+            logger.warning("No schedule data found.")
             return
         
-        logging.info("Saving schedule data...")
+        logger.info("Saving schedule data...")
         mlb_api.save_schedule(schedule_data)
 
-        logging.info("Uploading schedule to S3...")
+        logger.info("Uploading schedule to S3...")
         upload_to_s3(SCHEDULE_PATH, BUCKET_NAME, SCHEDULE_FILENAME)
 
-        logging.info("Schedule fetched and saved successfully.")
+        logger.info("Schedule fetched and saved successfully.")
     except Exception as e:
-        logging.error(f"Error fetching MLB schedule: {str(e)}")
+        logger.error(f"Error fetching MLB schedule: {str(e)}")
 
 if __name__ == "__main__":
     main(event=None, lambda_context=None)
