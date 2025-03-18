@@ -5,9 +5,18 @@ from config import  BUCKET_NAME, SCHEDULE_FILENAME, SCHEDULE_PATH
 from s3_uploader import upload_to_s3, delete_from_s3
 import mlbstatsapi
 import logging
+from pydantic import BaseModel, ValidationError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+class GameInfo(BaseModel):
+    date: str
+    away_team: str
+    home_team: str
+    venue: str
+    time: str
+
 
 class MLBAPI:
     mlb = mlbstatsapi.Mlb()
@@ -35,7 +44,12 @@ class MLBAPI:
                         'venue': game.venue.name,
                         'time': self.convert_utc_to_est(game.gamedate)
                     }
-                    game_info_list.append(game_info)
+
+                    try:
+                        validated_game_info = GameInfo(**game_info)
+                        game_info_list.append(validated_game_info.model_dump())
+                    except ValidationError as e:
+                        logger.error(f"Error validating game info: {str(e)}")
             return game_info_list
         except Exception as e:
             logger.error(f"Error fetching schedule: {str(e)}")
