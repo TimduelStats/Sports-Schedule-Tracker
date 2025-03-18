@@ -1,6 +1,4 @@
-API_KEY = '7f419c9b6133f1849c6349f4a1bb652b'
-SPORT = 'baseball_mlb'
-REGIONS = 'us'
-MARKETS = 'batter_home_runs'
-ODDS_FORMAT = 'american'
-DATE_FORMAT = 'iso'
+BUCKET_NAME = 'timjimmymlbdata'
+SAVE_DIR = '/tmp'
+SCHEDULE_FILENAME = 'mlb_schedule.json'
+SCHEDULE_PATH = f"{SAVE_DIR}/{SCHEDULE_FILENAME}"
